@@ -1,0 +1,104 @@
+﻿Victoria Lo cs61c-hc
+Maryam Labib cs61c-br
+
+
+1. Run your code on Connect 4 on a 5 by 5 board (WIDTH=5 HEIGHT=5 CONNECT=4) on clusters of size 6, 9, and 12. Be sure to set the appropriate number of reducers for each cluster size as indicated above. How long does each take? How many total mappers and reducers did you use for each?
+
+Cluster size: 6
+===============
+real    43m7.200s
+user    0m11.020s
+sys     0m2.020s
+Mappers: 2882
+Reducers: 1178
+
+Cluster size: 9
+===============
+real    41m41.06s 
+user 	0m10.93s
+sys	0m2.19s
+Mappers: 4768
+Reducers: 1973
+
+Cluster size: 12
+===============
+real    41m10.94s 
+user 	0m11.14s
+sys	0m2.20s
+Mappers: 5764
+Reducers: 2356
+
+2. What was the mean processing rate (in MB/s) of your code for 6, 9, and 12 instances? You can approximate the total data size to be (output size * 2) (Since you process all the game state data once each in PossibleMoves and SolveMoves). Output size is equal to the value given for HDFS_BYTES_READ on the job page for the mapper in FinalMoves.
+
+Cluster size: 6
+===============
+Mean Processing Rate (in MB/s): 321226 MB/s
+
+
+Cluster size: 9
+===============
+Mean Processing Rate (in MB/s): 319280 MB/s
+
+
+Cluster size: 12
+===============
+Mean Processing Rate (in MB/s): 323172 MB/s
+
+
+3. What was the speedup for 9 and 12 instances relative to 6 instances? What do you conclude about how well Hadoop parallelizes your work? Is this a case of strong scaling or weak scaling? Why or why not?
+
+The speedup was about the same, so Hadoop parallelizes really well.
+Strong scaling is how the solution time varies with the number of processors for a fixed total problem size.
+Weak scaling is how the solution time varies with the number of processors for a fixed problem size per processor.
+This is a case of weak scaling because if it were strong scaling, then the solution time would have varied when we ran the same 
+problem size (Connect 4 in a 5x5) on the three different size clusters. But since it remained approximately the same we can infer that this
+is a case of weak scaling since the performance doesn't increase as we increase the number of machines for a fixed problem size.
+
+Note: Originally we thought This was a case of strong scaling because for all the different size clusters we are offering the same problem size
+(Connect4 in a 5x5) so you have a fixed total problem size. Perhaps the exact distiction of weak vs. strong can be clarified in the future.
+
+4. Do some research about the combiner in Hadoop. Can you add a combiner to any of your MapReduces? ("MapReduces" being either of the four jobs: PossibleMoves, SolveMoves, InitFirst or FinalMoves.) If so, for each MapReduce phase that you indicated "yes" for, briefly discuss how you could add a combiner and what impact it would have on processing speed, if any. (NOTE: You DO NOT have to actually code anything here. Simply discuss/explain.)
+
+Combiners help when you've just produced a key-value pair and you give it to a combiner which does a bit of the reduction process to make it easier for whatever is receiving it. Since the pair is still in memory you can access it very efficiently so might as well take advantage of that.
+Obviously you could add a combiner wherever you want, but if there isn't a way that you are reducing (and are merely running key-value pairs through it) then it would be trivial.
+In our case, the mappers and reducers are sequential; if we were to add a combiner it would still do the same steps so we feel that for our case and with the mappers and reducers
+still as they are, a combiner would not significantly (or at all) speed things up.
+
+5. What was the price per GB processed for each cluster size? (Recall that an extra-large instance costs $0.68 per hour, rounded up to the nearest hour.)
+
+Cluster size: 6
+===============
+3194159724 bytes * (gb/1073741824 bytes) = 2.97479305789 gb
+(7.2 sec * (min/60 sec) + 43 min) * (1 hour/60 min) * $0.68/hr
+= (43.12 min) / (hour/60 min) * $0.68/hr
+= 0.71866666666 hours * $0.68/hr
+= $0.488693333
+$0.488693333/2.97479305789 gb
+= $0.164278094/gb ≈ $0.16/gb
+
+Cluster size: 9
+===============
+3194159136 bytes * (gb/1073741824 bytes) = 2.97479251027 gb
+(41.06 sec * (min/60 sec) + 41 min) * (1 hour/60 min) * $0.68/hr
+= (41.68433333333 min) / (hour/60 min) * $0.68/hr
+= 0.69473888888 hours * $0.68/hr
+= $0.47242244444
+$0.47242244444/2.97479251027 gb 
+= $0.15880853633/gb ≈ $0.16/gb
+
+Cluster size: 12
+===============
+3194160312 bytes * (gb/1073741824 bytes) = 2.97479360551 gb
+(10.94 sec * (min/60 sec) + 41 min) * (1 hour/60 min) * $0.68/hr
+= (43.18233333333 min) / (hour/60 min) * $0.68/hr
+= 0.68637222222 hours * $0.68/hr
+= $0.46673311111
+$0.46673311111/2.97479360551 gb 
+= $0.156895964/gb ≈ $0.16/gb
+
+
+6. How many dollars in EC2 credits did you use to complete this project? You can try to use the ec2-usage command to do this, however if it returns bogus values, please try to approximate (and indicate this).
+Total hours spent: 2.099
+Price:$0.68 per hour
+Total price of completing project: $1.43
+Total price (if you round up and count .099): $2.04
